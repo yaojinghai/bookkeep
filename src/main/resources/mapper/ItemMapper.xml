@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.spring.bookkeep.dao.ItemDao" >
+    <resultMap id="BaseResultMap" type="com.spring.bookkeep.entity.Item" >
+        <id column="item_id" property="itemId" jdbcType="INTEGER" />
+        <result column="item_name" property="itemName" jdbcType="VARCHAR" />
+        <result column="item_date" property="itemDate" jdbcType="VARCHAR" />
+        <result column="item_income" property="itemIncome" jdbcType="FLOAT" />
+        <result column="income_type" property="incomeType" jdbcType="INTEGER" />
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+    item_id, item_name, item_date, item_income, income_type, create_time, update_time
+    </sql>
+
+    <select id="queryItemList" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from item
+    </select>
+
+    <select id="getItemById" resultType="com.spring.bookkeep.entity.Item" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List" />
+        from item
+        where item_id = #{itemId,jdbcType=INTEGER}
+    </select>
+
+    <select id="queryItemByItemDate" resultMap="BaseResultMap" parameterType="com.spring.bookkeep.entity.QueryItem">
+        SELECT <include refid="Base_Column_List" />
+        FROM item
+        where 1 = 1
+        <if test="beginDate != null and beginDate != ''">
+            and item_date&gt;=#{beginDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and item_date&lt;=#{endDate}
+        </if>
+    </select>
+
+    <select id="queryItemByMonth" resultMap="BaseResultMap" parameterType="com.spring.bookkeep.entity.QueryItem">
+        SELECT <include refid="Base_Column_List" />
+        FROM item
+        where 1 = 1
+        <if test="dateMonth != null and dateMonth != ''">
+            and left(item_date,6) = #{dateMonth}
+        </if>
+    </select>
+
+    <delete id="removeItem" parameterType="java.lang.Integer" >
+        delete from item
+        where item_id = #{itemId,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="addItem" parameterType="com.spring.bookkeep.entity.Item" useGeneratedKeys="true" keyProperty="itemId"
+            keyColumn="item_id">
+          insert into item (item_id, item_date, item_name, income_type, item_income,
+              create_time, update_time)
+          values (#{itemId,jdbcType=INTEGER}, #{itemDate,jdbcType=VARCHAR}, #{itemName,jdbcType=VARCHAR}, #{incomeType,jdbcType=INTEGER},
+            #{itemIncome,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+
+
+    <update id="updateItem" parameterType="com.spring.bookkeep.entity.Item" >
+        update item
+        <set >
+            <if test="itemDate != null" >
+                item_date = #{itemDate,jdbcType=VARCHAR},
+            </if>
+            <if test="itemName != null" >
+                item_name = #{itemName,jdbcType=VARCHAR},
+            </if>
+            <if test="incomeType != null" >
+                income_type = #{incomeType,jdbcType=INTEGER},
+            </if>
+            <if test="itemIncome != null" >
+                item_income = #{itemIncome,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null" >
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null" >
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where item_id = #{itemId,jdbcType=INTEGER}
+    </update>
+</mapper>
